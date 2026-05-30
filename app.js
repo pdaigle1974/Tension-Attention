@@ -41,12 +41,26 @@ function saveApiKey(k) { localStorage.setItem(K_APIKEY, k); }
 // ── Utilitaires ───────────────────────────────────────────────────────────────
 
 function easternNow() {
-  const d = new Date(new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }));
-  const pad = n => String(n).padStart(2, '0');
-  return {
-    date:  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
-    heure: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
-  };
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).formatToParts(new Date());
+    const get = t => parts.find(p => p.type === t)?.value ?? '';
+    const hour = get('hour') === '24' ? '00' : get('hour');
+    return {
+      date:  `${get('year')}-${get('month')}-${get('day')}`,
+      heure: `${hour}:${get('minute')}`,
+    };
+  } catch {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return {
+      date:  `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+      heure: `${pad(now.getHours())}:${pad(now.getMinutes())}`,
+    };
+  }
 }
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
