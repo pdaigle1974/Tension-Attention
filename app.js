@@ -3,9 +3,10 @@
 // ── Constantes ────────────────────────────────────────────────────────────────
 
 const DEFAULT_PATIENT = {
-  nom: 'Pascal DAIGLE', ddn: '(DDN supprimée)', dossier: 'HHQ7380',
-  etu: '000091/1', sexe: 'M', medecin: '', adresse: '',
-  ville: 'Rimouski', codePostal: '', telM: '', telT: '',
+  nom: '***NOM***', ddn: '(DDN supprimée)', nam: '(NAM supprimé)', expNam: '(exp supprimée)',
+  dossier: '(dossier supprimé)', sexe: 'M', medecin: '',
+  adresse: '(adresse supprimée)', ville: '(ville supprimée)', codePostal: '(CP supprimé)',
+  cell: '(tél supprimé)', telM: '', telT: '',
   courriel: '', medicaments: '',
 };
 
@@ -312,13 +313,15 @@ function renderSettings(el) {
       <div class="settings-title">Informations patient</div>
       ${field('Nom', 's-nom', p.nom)}
       ${field('Date de naissance', 's-ddn', p.ddn)}
+      ${field('N.A.M.', 's-nam', p.nam)}
+      ${field('Expiration N.A.M.', 's-expNam', p.expNam)}
       ${field('# Dossier', 's-dossier', p.dossier)}
-      ${field('Étu', 's-etu', p.etu)}
       ${field('Sexe', 's-sexe', p.sexe)}
       ${field('Médecin', 's-med', p.medecin)}
       ${field('Adresse', 's-adr', p.adresse)}
       ${field('Ville', 's-ville', p.ville)}
       ${field('Code postal', 's-cp', p.codePostal)}
+      ${field('Cellulaire', 's-cell', p.cell)}
       ${field('Tél. maison', 's-telM', p.telM)}
       ${field('Tél. travail', 's-telT', p.telT)}
       ${field('Courriel', 's-mail', p.courriel)}
@@ -335,18 +338,20 @@ function renderSettings(el) {
   el.querySelector('#btn-save-s').addEventListener('click', () => {
     saveApiKey(el.querySelector('#s-key').value.trim());
     savePatient({
-      nom: el.querySelector('#s-nom').value.trim(),
-      ddn: el.querySelector('#s-ddn').value.trim(),
-      dossier: el.querySelector('#s-dossier').value.trim(),
-      etu: el.querySelector('#s-etu').value.trim(),
-      sexe: el.querySelector('#s-sexe').value.trim(),
-      medecin: el.querySelector('#s-med').value.trim(),
-      adresse: el.querySelector('#s-adr').value.trim(),
-      ville: el.querySelector('#s-ville').value.trim(),
+      nom:        el.querySelector('#s-nom').value.trim(),
+      ddn:        el.querySelector('#s-ddn').value.trim(),
+      nam:        el.querySelector('#s-nam').value.trim(),
+      expNam:     el.querySelector('#s-expNam').value.trim(),
+      dossier:    el.querySelector('#s-dossier').value.trim(),
+      sexe:       el.querySelector('#s-sexe').value.trim(),
+      medecin:    el.querySelector('#s-med').value.trim(),
+      adresse:    el.querySelector('#s-adr').value.trim(),
+      ville:      el.querySelector('#s-ville').value.trim(),
       codePostal: el.querySelector('#s-cp').value.trim(),
-      telM: el.querySelector('#s-telM').value.trim(),
-      telT: el.querySelector('#s-telT').value.trim(),
-      courriel: el.querySelector('#s-mail').value.trim(),
+      cell:       el.querySelector('#s-cell').value.trim(),
+      telM:       el.querySelector('#s-telM').value.trim(),
+      telT:       el.querySelector('#s-telT').value.trim(),
+      courriel:   el.querySelector('#s-mail').value.trim(),
       medicaments: el.querySelector('#s-meds').value.trim(),
     });
     toast('Paramètres sauvegardés ✓');
@@ -447,12 +452,19 @@ async function generatePDF(allReadings) {
   doc.setFontSize(8.5);
   let y = 25;
   const left = [
-    ['Nom :', p.nom], ['Date de naissance :', p.ddn], ['# Dossier :', p.dossier],
-    ['Étu :', p.etu], ['Sexe :', p.sexe],
+    ['Nom :', p.nom],
+    ['Date de naissance :', p.ddn],
+    ['N.A.M. :', p.nam + (p.expNam ? '   Exp. : ' + p.expNam : '')],
+    ['# Dossier :', p.dossier],
+    ['Sexe :', p.sexe],
   ];
   const right = [
-    ['Médecin :', p.medecin], ['Adresse :', [p.adresse, p.ville, p.codePostal].filter(Boolean).join(', ')],
-    ['Tél. (M) :', p.telM], ['Tél. (T) :', p.telT], ['Courriel :', p.courriel],
+    ['Médecin :', p.medecin],
+    ['Adresse :', [p.adresse, p.ville, p.codePostal].filter(Boolean).join(', ')],
+    ['Cell. :', p.cell],
+    ['Tél. (M) :', p.telM],
+    ['Tél. (T) :', p.telT],
+    ['Courriel :', p.courriel],
   ];
   left.forEach(([lbl, val]) => {
     doc.setFont('helvetica', 'bold').text(lbl, M, y);
@@ -465,7 +477,7 @@ async function generatePDF(allReadings) {
     doc.setFont('helvetica', 'normal').text((val || '—').trim(), W / 2 + 30, y);
     y += 5.5;
   });
-  y = 57;
+  y = 62;
 
   if (p.medicaments) {
     doc.setFont('helvetica', 'bold').text('Médicaments :', M, y);
