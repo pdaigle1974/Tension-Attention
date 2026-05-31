@@ -3,10 +3,10 @@
 // ── Constantes ────────────────────────────────────────────────────────────────
 
 const DEFAULT_PATIENT = {
-  nom: '***NOM***', ddn: '(DDN supprimée)', nam: '(NAM supprimé)', expNam: '(exp supprimée)',
-  dossier: '(dossier supprimé)', sexe: 'M', medecin: '',
-  adresse: '(adresse supprimée)', ville: '(ville supprimée)', codePostal: '(CP supprimé)',
-  cell: '(tél supprimé)', telM: '', telT: '',
+  nom: '', ddn: '', nam: '', expNam: '',
+  dossier: '', sexe: '', medecin: '',
+  adresse: '', ville: '', codePostal: '',
+  cell: '', telM: '', telT: '',
   courriel: '', medicaments: '',
 };
 
@@ -313,7 +313,11 @@ function renderSettings(el) {
       <input class="form-input" type="text" id="${id}" value="${esc(val || '')}" />
     </div>`;
 
+  const isNew = !localStorage.getItem(K_PATIENT);
   el.innerHTML = `
+    ${isNew ? `<div class="settings-block" style="background:var(--yellow-soft,#fef9c3);border:1px solid #fde047;border-radius:.75rem;padding:.875rem 1rem;margin-bottom:.5rem">
+      <strong>Bienvenue</strong> — veuillez remplir vos informations ci-dessous. Elles sont enregistrées uniquement sur cet appareil.
+    </div>` : ''}
     <div class="settings-block">
       <div class="settings-title">Clé API Anthropic (OCR photo)</div>
       <div class="settings-row">
@@ -549,5 +553,5 @@ async function generatePDF(allReadings) {
 document.querySelectorAll('.nav-btn').forEach(b =>
   b.addEventListener('click', () => navigate(b.dataset.page)));
 
-const firstLaunch = !loadApiKey() && loadReadings().length === 0;
+const firstLaunch = !localStorage.getItem(K_PATIENT);
 navigate(firstLaunch ? 'settings' : 'home');
